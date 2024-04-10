@@ -5,6 +5,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  ActivityIndicator,
   StyleSheet,
   ScrollView,
   Dimensions,
@@ -23,6 +24,7 @@ const ThoughtsScreen = () => {
   const [puzzles, setPuzzles] = useState("");
   const [lectureTag, setLectureTag] = useState("");
   const [lectures, setLectures] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchThoughts();
@@ -30,6 +32,7 @@ const ThoughtsScreen = () => {
   }, []);
 
   const fetchThoughts = async () => {
+    setLoading(true);
     const thoughtsCollection = collection(db, "thoughts");
     const snapshot = await getDocs(thoughtsCollection);
     const fetchedThoughts = await Promise.all(
@@ -53,12 +56,13 @@ const ThoughtsScreen = () => {
 
         return {
           id: docSnapshot.id,
-          lectureName,
+          lectureName, // Use this directly instead of className to align with ThoughtsScreen
           ...thoughtData,
         };
       }),
     );
     setThoughts(fetchedThoughts);
+    setLoading(false);
   };
 
   const fetchLectures = async () => {
@@ -90,6 +94,14 @@ const ThoughtsScreen = () => {
     setPuzzles("");
     setLectureTag("");
   };
+
+  if (loading) {
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="#000" />
+      </View>
+    );
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -126,13 +138,13 @@ const ThoughtsScreen = () => {
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.inputLabel}>Related lecture:</Text>
+        <Text style={styles.inputLabel}>Related class:</Text>
         <Picker
           selectedValue={lectureTag}
           style={styles.picker}
           onValueChange={(itemValue) => setLectureTag(itemValue)}
         >
-          <Picker.Item label="Select a lecture" value="" />
+          <Picker.Item label="Select a class" value="" />
           {lectures.map((lecture) => (
             <Picker.Item
               key={lecture.id}
@@ -154,7 +166,7 @@ const ThoughtsScreen = () => {
             Key Learning: {thought.keyLearning}
           </Text>
           <Text style={styles.thoughtText}>Puzzles: {thought.puzzles}</Text>
-          <Text style={styles.thoughtText}>Lecture: {thought.lectureName}</Text>
+          <Text style={styles.thoughtText}>Class: {thought.lectureName}</Text>
         </View>
       ))}
     </ScrollView>
@@ -162,6 +174,11 @@ const ThoughtsScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  loaderContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   container: {
     flexGrow: 1,
     padding: 20,

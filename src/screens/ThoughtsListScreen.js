@@ -1,65 +1,69 @@
 import React, { useState, useEffect } from "react";
 import {
   View,
-  Text,
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
+  ActivityIndicator,
   Dimensions,
-  Alert,
 } from "react-native";
-import { Swipeable } from "react-native-gesture-handler";
-import { Ionicons } from "@expo/vector-icons";
 import { db } from "../../firebaseConfig";
 import {
   collection,
-  addDoc,
   getDocs,
   doc,
   deleteDoc,
   getDoc,
 } from "firebase/firestore";
+import ThoughtsList from "../components/ThoughtsList.js"; // Adjust the import path as needed
 
 const { width } = Dimensions.get("window");
 const isLargeScreen = width > 600;
 
 const ThoughtsListScreen = () => {
   const [thoughts, setThoughts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchThoughts();
   }, []);
 
   const fetchThoughts = async () => {
+    setLoading(true); // Ensure loading is set to true when the fetch begins
     const thoughtsCollection = collection(db, "thoughts");
     const snapshot = await getDocs(thoughtsCollection);
-    const fetchedThoughts = await Promise.all(
-      snapshot.docs.map(async (docSnapshot) => {
-        const thoughtData = docSnapshot.data();
+    const fetchedThoughts = [];
 
-        let lectureName = "Unknown Lecture"; // Default value
-        if (thoughtData.lectureTag) {
-          // Check if lectureTag is present
-          try {
-            const lectureDocRef = doc(db, "lectures", thoughtData.lectureTag);
-            const lectureDocSnapshot = await getDoc(lectureDocRef);
-            if (lectureDocSnapshot.exists()) {
-              lectureName = lectureDocSnapshot.data().name;
-            }
-          } catch (error) {
-            console.error("Error fetching lecture name:", error);
-            // Handle any errors (e.g., invalid lectureTag) here
+    for (const docSnapshot of snapshot.docs) {
+      const thoughtData = docSnapshot.data();
+
+      // Initialize className as "Unassigned Class" to cover cases where classTag is missing or invalid.
+      let lectureName = "Unassigned Class";
+
+      if (thoughtData.lectureTag) {
+        try {
+          const lectureDocRef = doc(db, "lectures", thoughtData.lectureTag);
+          const lectureDocSnapshot = await getDoc(lectureDocRef);
+
+          if (lectureDocSnapshot.exists()) {
+            lectureName = lectureDocSnapshot.data().name;
+          } else {
+            console.log(`Lecture not found for ID: ${thoughtData.lectureTag}`);
           }
+        } catch (error) {
+          console.error("Error fetching lecture name:", error);
+          // Handle any errors (e.g., invalid lectureTag) here
         }
+      }
 
-        return {
-          id: docSnapshot.id,
-          lectureName,
-          ...thoughtData,
-        };
-      }),
-    );
+      fetchedThoughts.push({
+        id: docSnapshot.id,
+        lectureName, // Ensures compatibility with the frontend terminology
+        ...thoughtData,
+      });
+    }
+
     setThoughts(fetchedThoughts);
+    setLoading(false); // Ensure loading is set to false after fetch completion
   };
 
   const removeThought = async (thoughtId) => {
@@ -67,34 +71,17 @@ const ThoughtsListScreen = () => {
     fetchThoughts(); // Refresh the thoughts list after deletion
   };
 
-  const RightActions = ({ onPress }) => (
-    <TouchableOpacity onPress={onPress} style={styles.deleteBox}>
-      <Ionicons name="trash-bin" size={24} color="white" />
-    </TouchableOpacity>
-  );
+  if (loading) {
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="#000" />
+      </View>
+    );
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {thoughts.map((thought) => (
-        <Swipeable
-          key={thought.id}
-          renderRightActions={() => (
-            <RightActions onPress={() => removeThought(thought.id)} />
-          )}
-          containerStyle={styles.swipeableContainer}
-        >
-          <View style={styles.thoughtItem}>
-            <Text style={styles.thoughtTitle}>
-              {thought.lectureName || "No Lecture Title"}
-            </Text>
-            <Text style={styles.thoughtText}>Purpose: {thought.purpose}</Text>
-            <Text style={styles.thoughtText}>
-              Key Learning: {thought.keyLearning}
-            </Text>
-            <Text style={styles.thoughtText}>Questions: {thought.puzzles}</Text>
-          </View>
-        </Swipeable>
-      ))}
+      <ThoughtsList thoughts={thoughts} removeThought={removeThought} />
     </ScrollView>
   );
 };
@@ -105,31 +92,10 @@ const styles = StyleSheet.create({
     padding: isLargeScreen ? 30 : 20,
     backgroundColor: "#f5f5f5",
   },
-  swipeableContainer: {
-    marginBottom: isLargeScreen ? 20 : 15,
-    borderRadius: 10,
-    overflow: "hidden", // Ensures the swipeable actions follow the rounded corners
-  },
-  thoughtItem: {
-    backgroundColor: "#fff",
-    padding: isLargeScreen ? 20 : 15,
-    borderRadius: 10,
-  },
-  thoughtTitle: {
-    fontSize: isLargeScreen ? 20 : 16,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  thoughtText: {
-    fontSize: isLargeScreen ? 18 : 14,
-    marginBottom: 10,
-  },
-  deleteBox: {
-    backgroundColor: "red",
+  loaderContainer: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    width: 100,
-    height: "100%",
   },
 });
 

@@ -3,15 +3,10 @@ import {
   View,
   StyleSheet,
   FlatList,
-  Text,
   Alert,
-  TouchableOpacity,
-  Modal,
-  TextInput,
-  Button,
+  ActivityIndicator,
 } from "react-native";
-import { Swipeable } from "react-native-gesture-handler";
-import { Ionicons } from "@expo/vector-icons";
+import LectureSchedule from "../components/LectureSchedule";
 import { db } from "../../firebaseConfig";
 import {
   collection,
@@ -23,8 +18,7 @@ import {
 
 const ScheduleScreen = () => {
   const [lectures, setLectures] = useState([]);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [newLectureName, setNewLectureName] = useState("");
+  const [loading, setLoading] = useState(true); // Define a loading state
 
   useEffect(() => {
     fetchLectures();
@@ -38,87 +32,36 @@ const ScheduleScreen = () => {
       ...doc.data(),
     }));
     setLectures(fetchedLectures);
+    setLoading(false); // Set loading to false once data is fetched
   };
 
-  const addLecture = async () => {
-    if (newLectureName.trim() === "") {
-      Alert.alert("Error", "Please enter a lecture name.");
-      return;
-    }
+  const addLecture = async (lectureName) => {
     const lecturesCollection = collection(db, "lectures");
-    await addDoc(lecturesCollection, { name: newLectureName.trim() });
-    fetchLectures();
-    setNewLectureName("");
-    setModalVisible(false);
-    Alert.alert("Success", "Lecture added successfully!");
+    await addDoc(lecturesCollection, { name: lectureName });
+    fetchLectures(); // Refetch the lectures list to include the new lecture
   };
 
   const removeLecture = async (lectureId) => {
     const lectureDoc = doc(db, "lectures", lectureId);
     await deleteDoc(lectureDoc);
-    fetchLectures();
+    fetchLectures(); // Refetch the lectures list after removing the lecture
   };
 
-  const RightActions = ({ onPress }) => (
-    <TouchableOpacity onPress={onPress} style={styles.deleteBox}>
-      <Ionicons name="trash-bin" size={24} color="white" />
-    </TouchableOpacity>
-  );
+  if (loading) {
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="#000" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={lectures}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <Swipeable
-            renderRightActions={() => (
-              <RightActions onPress={() => removeLecture(item.id)} />
-            )}
-          >
-            <View style={styles.lectureItem}>
-              <Text style={styles.lectureText}>{item.name}</Text>
-            </View>
-          </Swipeable>
-        )}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-        ListFooterComponent={() => (
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => setModalVisible(true)}
-          >
-            <Ionicons name="add" size={24} color="black" />
-            <Text style={styles.addButtonText}>Add Lecture</Text>
-          </TouchableOpacity>
-        )}
+      <LectureSchedule
+        lectures={lectures}
+        addLecture={addLecture}
+        removeLecture={removeLecture}
       />
-
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(!modalVisible)}
-      >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <Text style={styles.modalText}>Add a New Lecture</Text>
-            <TextInput
-              style={styles.modalInput}
-              onChangeText={setNewLectureName}
-              value={newLectureName}
-              placeholder="Enter Lecture Name"
-              autoFocus
-            />
-            <View style={styles.modalButtons}>
-              <Button
-                title="Cancel"
-                onPress={() => setModalVisible(!modalVisible)}
-              />
-              <Button title="Add" onPress={addLecture} />
-            </View>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 };
@@ -126,81 +69,11 @@ const ScheduleScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
   },
-  lectureItem: {
-    backgroundColor: "white",
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    justifyContent: "center",
-  },
-  lectureText: {
-    fontSize: 18,
-  },
-  deleteBox: {
-    backgroundColor: "red",
-    justifyContent: "center",
-    alignItems: "center",
-    width: 100,
-    height: "100%",
-  },
-  separator: {
-    height: 1,
-    backgroundColor: "#eee",
-    width: "100%",
-  },
-  addButton: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  addButtonText: {
-    marginLeft: 10,
-    fontSize: 18,
-    color: "black",
-  },
-  centeredView: {
+  loaderContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 22,
-    backgroundColor: "rgba(0,0,0,0.5)",
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-    width: "80%",
-  },
-  modalText: {
-    marginBottom: 15,
-    textAlign: "center",
-    fontSize: 18,
-  },
-  modalInput: {
-    width: "100%",
-    height: 40,
-    marginBottom: 20,
-    borderWidth: 1,
-    padding: 10,
-    borderRadius: 10,
-    borderColor: "#ccc",
-  },
-  modalButtons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
   },
 });
 
