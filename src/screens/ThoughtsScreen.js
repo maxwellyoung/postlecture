@@ -159,7 +159,7 @@ const ThoughtsScreen = () => {
         <Text style={styles.buttonText}>Submit Reflection</Text>
       </TouchableOpacity>
 
-      {thoughts.map((thought) => (
+      {/* {thoughts.map((thought) => (
         <View key={thought.id} style={styles.thoughtItem}>
           <Text style={styles.thoughtText}>Purpose: {thought.purpose}</Text>
           <Text style={styles.thoughtText}>
@@ -168,7 +168,7 @@ const ThoughtsScreen = () => {
           <Text style={styles.thoughtText}>Puzzles: {thought.puzzles}</Text>
           <Text style={styles.thoughtText}>Class: {thought.lectureName}</Text>
         </View>
-      ))}
+      ))} */}
     </ScrollView>
   );
 };

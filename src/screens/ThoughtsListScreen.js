@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import {
+  ScrollView,
   View,
   StyleSheet,
-  ScrollView,
   ActivityIndicator,
   Dimensions,
 } from "react-native";

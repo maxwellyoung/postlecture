@@ -152,23 +152,22 @@ const styles = StyleSheet.create({
   addButton: {
     flexDirection: "row",
     justifyContent: "center",
-    alignItems: "center",
+    alignItems: "flex-end",
     padding: 20,
   },
   addButtonText: {
     marginLeft: 10,
     fontSize: 18,
+
     color: "black",
   },
   centeredView: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 22,
     backgroundColor: "rgba(0,0,0,0.5)",
   },
   modalView: {
-    margin: 20,
     backgroundColor: "white",
     borderRadius: 20,
     padding: 35,

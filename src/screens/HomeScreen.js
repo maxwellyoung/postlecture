@@ -2,11 +2,12 @@ import React from "react";
 import {
   View,
   Text,
-  Button,
+  ScrollView,
   StyleSheet,
   Pressable,
   Dimensions,
 } from "react-native";
+import ThoughtsListScreen from "./ThoughtsListScreen";
 
 const HomeScreen = ({ navigation }) => {
   // Get the screen width
@@ -16,41 +17,39 @@ const HomeScreen = ({ navigation }) => {
   const isMobile = screenWidth <= 768;
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Post Lecture</Text>
-      <View
-        style={[
-          styles.menuContainer,
-          isMobile ? styles.menuVertical : styles.menuHorizontal,
-        ]}
-      >
-        <Pressable
-          style={styles.button}
-          onPress={() => navigation.navigate("Schedule")}
+    <ScrollView>
+      <View style={styles.container}>
+        <Text style={styles.title}>Post Lecture</Text>
+        <View
+          style={[
+            styles.menuContainer,
+            isMobile ? styles.menuVertical : styles.menuHorizontal,
+          ]}
         >
-          <Text style={styles.text}>{"View Schedule"}</Text>
-        </Pressable>
-        <Pressable
-          style={styles.button}
-          onPress={() => navigation.navigate("Thoughts")}
-        >
-          <Text style={styles.text}>{"Log Thoughts"}</Text>
-        </Pressable>
-        <Pressable
+          <Pressable
+            style={styles.button}
+            onPress={() => navigation.navigate("Schedule")}
+          >
+            <Text style={styles.text}>{"View Schedule"}</Text>
+          </Pressable>
+          <Pressable
+            style={styles.button}
+            onPress={() => navigation.navigate("Thoughts")}
+          >
+            <Text style={styles.text}>{"Log Thoughts"}</Text>
+          </Pressable>
+          {/* <Pressable
           style={styles.button}
           onPress={() => navigation.navigate("Thoughts List")}
         >
           <Text style={styles.text}>{"See Thoughts"}</Text>
-        </Pressable>
-
-        <Pressable
-          style={styles.button}
-          onPress={() => navigation.navigate("Quiz")}
-        >
-          <Text style={styles.text}>{"Take a Quiz"}</Text>
-        </Pressable>
+        </Pressable> */}
+        </View>
+        <View>
+          <ThoughtsListScreen />
+        </View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -64,6 +63,7 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: "medium",
     marginBottom: 20,
+    marginTop: 20,
     fontFamily: "Pantasia-Regular",
   },
   button: {
