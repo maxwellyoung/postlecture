@@ -20,37 +20,21 @@ const ThoughtsList = ({ thoughts, removeThought }) => {
     </TouchableOpacity>
   );
 
-  // Adjusted styles for Swipeable container and thoughtItem for visual consistency
   return (
     <>
       {thoughts.map((thought) => (
         <Swipeable
           key={thought.id}
-          renderRightActions={() => (
-            <RightActions onPress={() => removeThought(thought.id)} />
-          )}
-          // Ensure the swipeable container extends fully without creating visual gaps
-          containerStyle={[
-            styles.swipeableContainer,
-            { backgroundColor: "red" },
-          ]}
-          // Additional props like friction, overshootRight, etc., can adjust the feel
+          renderRightActions={() => <RightActions onPress={() => removeThought(thought.id)} />}
+          containerStyle={styles.swipeableContainer}
         >
-          {/* Ensure this View has a consistent background color and fills the swipeable area */}
-          <View style={[styles.thoughtItem, { backgroundColor: "white" }]}>
-            <Text style={styles.thoughtTitle}>
-              {thought.lectureName || "No Class Title"}
-            </Text>
-            <Text style={styles.thoughtText}>Purpose: {thought.purpose}</Text>
-            <Text style={styles.thoughtText}>
-              Key Learning: {thought.keyLearning}
-            </Text>
-            <Text style={styles.thoughtText}>Questions: {thought.puzzles}</Text>
-            <Text style={styles.thoughtText}>
-              Created On:{" "}
-              {thought.createdAt
-                ? moment(thought.createdAt).format("MMMM Do YYYY, h:mm:ss a")
-                : "Unknown"}
+          <View style={styles.thoughtItem}>
+            <Text style={styles.thoughtTitle}>{thought.lectureName || "No Class Title"}</Text>
+            <Text style={styles.thoughtDetail}>Purpose: {thought.purpose}</Text>
+            <Text style={styles.thoughtDetail}>Key Learning: {thought.keyLearning}</Text>
+            <Text style={styles.thoughtDetail}>Questions: {thought.puzzles}</Text>
+            <Text style={styles.thoughtDetail}>
+              Created on: {thought.createdAt ? moment(thought.createdAt).format("MMM Do, YYYY") : "Unknown"}
             </Text>
           </View>
         </Swipeable>
@@ -59,28 +43,37 @@ const ThoughtsList = ({ thoughts, removeThought }) => {
   );
 };
 
-// Assuming your styles object is elsewhere, ensure thoughtItem has a solid background
-// and perhaps add adjustments to the swipeableContainer if necessary.
-
 const styles = StyleSheet.create({
   swipeableContainer: {
     marginBottom: isLargeScreen ? 20 : 15,
     borderRadius: 10,
+    backgroundColor: "#f0f0f0", // Even lighter background for contrast
     overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 6, // Slightly more elevation for a subtle depth effect
   },
   thoughtItem: {
     backgroundColor: "#fff",
-    padding: isLargeScreen ? 20 : 15,
+    paddingVertical: isLargeScreen ? 25 : 20,
+    paddingHorizontal: isLargeScreen ? 20 : 15,
     borderRadius: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eaeaea", // subtle separation if stacking without gaps
   },
   thoughtTitle: {
-    fontSize: isLargeScreen ? 20 : 16,
-    fontWeight: "bold",
-    marginBottom: 10,
+    fontSize: isLargeScreen ? 22 : 18,
+    fontWeight: "600", // slightly less bold than 'bold'
+    marginBottom: 8,
+    color: "#333", // keeping it dark for better readability
   },
-  thoughtText: {
-    fontSize: isLargeScreen ? 18 : 14,
-    marginBottom: 10,
+  thoughtDetail: {
+    fontSize: isLargeScreen ? 16 : 14,
+    lineHeight: 24, // increased line-height for better readability
+    marginBottom: 6,
+    color: "#555", // slightly lighter than title for hierarchical contrast
   },
   deleteBox: {
     backgroundColor: "red",
@@ -90,5 +83,6 @@ const styles = StyleSheet.create({
     height: "100%",
   },
 });
+
 
 export default ThoughtsList;
