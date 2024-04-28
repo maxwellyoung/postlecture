@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
 import { Ionicons } from "@expo/vector-icons";
+import moment from "moment";
 
 const { width } = Dimensions.get("window");
 const isLargeScreen = width > 600;
@@ -45,6 +46,12 @@ const ThoughtsList = ({ thoughts, removeThought }) => {
               Key Learning: {thought.keyLearning}
             </Text>
             <Text style={styles.thoughtText}>Questions: {thought.puzzles}</Text>
+            <Text style={styles.thoughtText}>
+              Created On:{" "}
+              {thought.createdAt
+                ? moment(thought.createdAt).format("MMMM Do YYYY, h:mm:ss a")
+                : "Unknown"}
+            </Text>
           </View>
         </Swipeable>
       ))}

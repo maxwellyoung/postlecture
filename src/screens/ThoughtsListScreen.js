@@ -10,9 +10,11 @@ import { db } from "../../firebaseConfig";
 import {
   collection,
   getDocs,
+  getDoc,
   doc,
   deleteDoc,
-  getDoc,
+  query,
+  orderBy,
 } from "firebase/firestore";
 import ThoughtsList from "../components/ThoughtsList.js"; // Adjust the import path as needed
 
@@ -28,42 +30,46 @@ const ThoughtsListScreen = () => {
   }, []);
 
   const fetchThoughts = async () => {
-    setLoading(true); // Ensure loading is set to true when the fetch begins
+    setLoading(true);
     const thoughtsCollection = collection(db, "thoughts");
-    const snapshot = await getDocs(thoughtsCollection);
+    const querySnapshot = await getDocs(
+      query(thoughtsCollection, orderBy("createdAt", "desc")),
+    );
+
     const fetchedThoughts = [];
 
-    for (const docSnapshot of snapshot.docs) {
+    for (const docSnapshot of querySnapshot.docs) {
       const thoughtData = docSnapshot.data();
 
-      // Initialize className as "Unassigned Class" to cover cases where classTag is missing or invalid.
-      let lectureName = "Unassigned Class";
+      let lectureName = "Unassigned Class"; // Default fallback name
 
       if (thoughtData.lectureTag) {
+        const lectureDocRef = doc(db, "lectures", thoughtData.lectureTag);
         try {
-          const lectureDocRef = doc(db, "lectures", thoughtData.lectureTag);
           const lectureDocSnapshot = await getDoc(lectureDocRef);
-
           if (lectureDocSnapshot.exists()) {
-            lectureName = lectureDocSnapshot.data().name;
+            lectureName = lectureDocSnapshot.data().name; // Assign the fetched lecture name
           } else {
             console.log(`Lecture not found for ID: ${thoughtData.lectureTag}`);
           }
         } catch (error) {
           console.error("Error fetching lecture name:", error);
-          // Handle any errors (e.g., invalid lectureTag) here
         }
       }
 
+      // Construct the thought object with all relevant data, including the dynamically fetched lecture name
       fetchedThoughts.push({
         id: docSnapshot.id,
-        lectureName, // Ensures compatibility with the frontend terminology
+        lectureName,
         ...thoughtData,
+        createdAt: thoughtData.createdAt
+          ? new Date(thoughtData.createdAt.seconds * 1000)
+          : null,
       });
     }
 
     setThoughts(fetchedThoughts);
-    setLoading(false); // Ensure loading is set to false after fetch completion
+    setLoading(false);
   };
 
   const removeThought = async (thoughtId) => {
