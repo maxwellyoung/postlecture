@@ -5,7 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Dimensions,
-  Picker,
+  
   ScrollView
 } from "react-native";
 import { db } from "../../firebaseConfig";
@@ -13,6 +13,7 @@ import { collection, query, where, getDocs, getDoc, deleteDoc, doc } from "fireb
 import { Swipeable } from "react-native-gesture-handler";
 import { Ionicons } from "@expo/vector-icons";
 import moment from "moment";
+import {Picker} from '@react-native-picker/picker';
 
 const { width } = Dimensions.get("window");
 const isLargeScreen = width > 768;
@@ -90,29 +91,35 @@ const ThoughtsList = () => {
           <Picker.Item key={lecture.id} label={lecture.name} value={lecture.id} />
         ))}
       </Picker>
-      <ScrollView style={styles.scrollView}>
-        {thoughts.map((thought) => (
-          <Swipeable
-            key={thought.id}
-            renderRightActions={() => (
-              <TouchableOpacity onPress={() => removeThought(thought.id)} style={styles.deleteBox}>
-                <Ionicons name="trash-bin" size={24} color="white" />
-              </TouchableOpacity>
-            )}
-            containerStyle={styles.swipeableContainer}
-          >
-            <View style={styles.thoughtItem}>
-              <Text style={styles.thoughtTitle}>{thought.lectureName || "No Class Title"}</Text>
-              <Text style={styles.thoughtDetail}>Purpose: {thought.purpose}</Text>
-              <Text style={styles.thoughtDetail}>Key Learning: {thought.keyLearning}</Text>
-              <Text style={styles.thoughtDetail}>Questions: {thought.puzzles}</Text>
-              <Text style={styles.thoughtDetail}>
-                Created on: {thought.createdAt}
-              </Text>
-            </View>
-          </Swipeable>
+      {thoughts.length > 0 ? (
+        <ScrollView style={styles.scrollView}>
+          {thoughts.map((thought) => (
+            <Swipeable
+              key={thought.id}
+              renderRightActions={() => (
+                <TouchableOpacity onPress={() => removeThought(thought.id)} style={styles.deleteBox}>
+                  <Ionicons name="trash-bin" size={24} color="white" />
+                </TouchableOpacity>
+              )}
+              containerStyle={styles.swipeableContainer}
+            >
+              <View style={styles.thoughtItem}>
+                <Text style={styles.thoughtTitle}>{thought.lectureName || "No Class Title"}</Text>
+                <Text style={styles.thoughtDetail}>Purpose: {thought.purpose}</Text>
+                <Text style={styles.thoughtDetail}>Key Learning: {thought.keyLearning}</Text>
+                <Text style={styles.thoughtDetail}>Questions: {thought.puzzles}</Text>
+                <Text style={styles.thoughtDetail}>
+                  Created on: {thought.createdAt}
+                </Text>
+              </View>
+            </Swipeable>
         ))}
       </ScrollView>
+      ) : (
+        <View style={styles.thoughtItem}>
+        <Text style={styles.noThoughtsText}>No thoughts available for this class.</Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -133,14 +140,14 @@ const styles = StyleSheet.create({
   },
   swipeableContainer: {
     marginBottom: 15,
-    borderRadius: 10,
-    backgroundColor: "#f0f0f0",
+    // borderRadius: 10,
+    // backgroundColor: "#f0f0f0",
     overflow: "hidden",
   },
   thoughtItem: {
     padding: 20,
     backgroundColor: "#fff",
-    borderRadius: 10,
+    // borderRadius: 10,
   },
   thoughtTitle: {
     fontSize: 18,
@@ -159,6 +166,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: 100,
     height: "100%",
+  },
+  noThoughtsText: {
+    textAlign: 'center',
+    fontSize: 16,
+    color: '#999999',
+    marginTop: 20,
   },
 });
 

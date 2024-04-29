@@ -101,6 +101,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
+    fontFamily: 'Pantasia-Regular',
     fontWeight: "600",
     marginBottom: 20,
   },

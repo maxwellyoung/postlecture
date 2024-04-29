@@ -190,12 +190,6 @@ const styles = StyleSheet.create({
     width: "100%",
     backgroundColor: "#fff",
     padding: 20,
-    borderRadius: 8, // Softened rounded corners
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05, // Lower opacity for a softer shadow
-    shadowRadius: 10,
-    elevation: 2, // Reduced elevation
   },
   inputGroup: {
     width: "100%",

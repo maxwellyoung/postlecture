@@ -113,8 +113,9 @@ const ScheduleScreen = () => {
               <Button
                 title="Cancel"
                 onPress={() => setModalVisible(!modalVisible)}
+                style={styles.button}
               />
-              <Button title="Add" onPress={addLecture} />
+              <Button title="Add" onPress={addLecture} style={styles.button} />
             </View>
           </View>
         </View>
@@ -158,8 +159,10 @@ const styles = StyleSheet.create({
   addButtonText: {
     marginLeft: 10,
     fontSize: 18,
-
     color: "black",
+  },
+  button: {
+    backgroundColor: "#fff",
   },
   centeredView: {
     flex: 1,
@@ -201,6 +204,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     width: "100%",
   },
+  
 });
 
 export default ScheduleScreen;
