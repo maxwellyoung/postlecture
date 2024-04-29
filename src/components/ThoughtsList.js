@@ -1,79 +1,157 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   Dimensions,
+  Picker,
+  ScrollView
 } from "react-native";
+import { db } from "../../firebaseConfig";
+import { collection, query, where, getDocs, getDoc, deleteDoc, doc } from "firebase/firestore";
 import { Swipeable } from "react-native-gesture-handler";
 import { Ionicons } from "@expo/vector-icons";
 import moment from "moment";
 
 const { width } = Dimensions.get("window");
-const isLargeScreen = width > 600;
+const isLargeScreen = width > 768;
 
-const ThoughtsList = ({ thoughts, removeThought }) => {
-  const RightActions = ({ onPress }) => (
-    <TouchableOpacity onPress={onPress} style={styles.deleteBox}>
-      <Ionicons name="trash-bin" size={24} color="white" />
-    </TouchableOpacity>
-  );
+const ThoughtsList = () => {
+  const [thoughts, setThoughts] = useState([]);
+  const [lectures, setLectures] = useState([]);
+  const [selectedLecture, setSelectedLecture] = useState("all");
+
+  useEffect(() => {
+    fetchLectures();
+    fetchThoughts(selectedLecture);
+  }, []);
+
+  useEffect(() => {
+    fetchThoughts(selectedLecture);
+  }, [selectedLecture]);
+
+  const fetchLectures = async () => {
+    const lecturesRef = collection(db, "lectures");
+    const snapshot = await getDocs(lecturesRef);
+    const lecturesData = snapshot.docs.map(doc => ({ id: doc.id, name: doc.data().name }));
+    setLectures([{ id: "all", name: "All Lectures" }, ...lecturesData]);
+  };
+
+  const fetchThoughts = async (lectureId) => {
+    const thoughtsRef = collection(db, "thoughts");
+    const q = lectureId === "all" 
+      ? thoughtsRef 
+      : query(thoughtsRef, where("lectureTag", "==", lectureId));
+    
+    const snapshot = await getDocs(q);
+    
+    const fetchedThoughts = await Promise.all(
+      snapshot.docs.map(async (docSnapshot) => {
+        const thought = docSnapshot.data();
+        thought.id = docSnapshot.id;
+        thought.createdAt = thought.createdAt
+          ? moment(thought.createdAt.toDate()).format("MMM Do, YYYY")
+          : "Unknown";
+        
+        // Check if lectureTag is present and fetch the lecture name
+        if (thought.lectureTag) {
+          const lectureRef = doc(db, "lectures", thought.lectureTag);
+          const lectureSnap = await getDoc(lectureRef);
+          thought.lectureName = lectureSnap.exists()
+            ? lectureSnap.data().name
+            : "Lecture not found";
+        } else {
+          thought.lectureName = "No Class Title";
+        }
+        
+        return thought;
+      })
+    );
+  
+    setThoughts(fetchedThoughts);
+  };
+  
+  
+
+  const removeThought = async (thoughtId) => {
+    await deleteDoc(doc(db, "thoughts", thoughtId));
+    fetchThoughts(selectedLecture);
+  };
 
   return (
-    <>
-      {thoughts.map((thought) => (
-        <Swipeable
-          key={thought.id}
-          renderRightActions={() => <RightActions onPress={() => removeThought(thought.id)} />}
-          containerStyle={styles.swipeableContainer}
-        >
-          <View style={styles.thoughtItem}>
-            <Text style={styles.thoughtTitle}>{thought.lectureName || "No Class Title"}</Text>
-            <Text style={styles.thoughtDetail}>Purpose: {thought.purpose}</Text>
-            <Text style={styles.thoughtDetail}>Key Learning: {thought.keyLearning}</Text>
-            <Text style={styles.thoughtDetail}>Questions: {thought.puzzles}</Text>
-            <Text style={styles.thoughtDetail}>
-              Created on: {thought.createdAt ? moment(thought.createdAt).format("MMM Do, YYYY") : "Unknown"}
-            </Text>
-          </View>
-        </Swipeable>
-      ))}
-    </>
+    <View style={styles.container}>
+      <Picker
+        selectedValue={selectedLecture}
+        onValueChange={(itemValue, itemIndex) => setSelectedLecture(itemValue)}
+        style={styles.picker}
+      >
+        {lectures.map((lecture) => (
+          <Picker.Item key={lecture.id} label={lecture.name} value={lecture.id} />
+        ))}
+      </Picker>
+      <ScrollView style={styles.scrollView}>
+        {thoughts.map((thought) => (
+          <Swipeable
+            key={thought.id}
+            renderRightActions={() => (
+              <TouchableOpacity onPress={() => removeThought(thought.id)} style={styles.deleteBox}>
+                <Ionicons name="trash-bin" size={24} color="white" />
+              </TouchableOpacity>
+            )}
+            containerStyle={styles.swipeableContainer}
+          >
+            <View style={styles.thoughtItem}>
+              <Text style={styles.thoughtTitle}>{thought.lectureName || "No Class Title"}</Text>
+              <Text style={styles.thoughtDetail}>Purpose: {thought.purpose}</Text>
+              <Text style={styles.thoughtDetail}>Key Learning: {thought.keyLearning}</Text>
+              <Text style={styles.thoughtDetail}>Questions: {thought.puzzles}</Text>
+              <Text style={styles.thoughtDetail}>
+                Created on: {thought.createdAt}
+              </Text>
+            </View>
+          </Swipeable>
+        ))}
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: "#fff",
+    width: isLargeScreen ? '100%' : '100%', // Consistent width based on screen size
+  },
+  picker: {
+    marginBottom: 20,
+    width: '100%', // Full width to avoid content shifting
+  },
+  scrollView: {
+    width: '100%', // Ensures the ScrollView doesn't change width
+  },
   swipeableContainer: {
-    marginBottom: isLargeScreen ? 20 : 15,
+    marginBottom: 15,
     borderRadius: 10,
-    backgroundColor: "#f0f0f0", // Even lighter background for contrast
+    backgroundColor: "#f0f0f0",
     overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    elevation: 6, // Slightly more elevation for a subtle depth effect
   },
   thoughtItem: {
+    padding: 20,
     backgroundColor: "#fff",
-    paddingVertical: isLargeScreen ? 25 : 20,
-    paddingHorizontal: isLargeScreen ? 20 : 15,
     borderRadius: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eaeaea", // subtle separation if stacking without gaps
   },
   thoughtTitle: {
-    fontSize: isLargeScreen ? 22 : 18,
-    fontWeight: "600", // slightly less bold than 'bold'
-    marginBottom: 8,
-    color: "#333", // keeping it dark for better readability
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 5,
   },
   thoughtDetail: {
-    fontSize: isLargeScreen ? 16 : 14,
-    lineHeight: 24, // increased line-height for better readability
-    marginBottom: 6,
-    color: "#555", // slightly lighter than title for hierarchical contrast
+    fontSize: 16,
+    color: "#555",
+    marginBottom: 5,
   },
   deleteBox: {
     backgroundColor: "red",
@@ -83,6 +161,5 @@ const styles = StyleSheet.create({
     height: "100%",
   },
 });
-
 
 export default ThoughtsList;

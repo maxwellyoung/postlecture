@@ -18,7 +18,7 @@ import firebase from 'firebase/app'; // Ensure Firebase is correctly imported
 const { width } = Dimensions.get("window");
 const isLargeScreen = width > 600;
 
-const ThoughtsScreen = () => {
+const ThoughtsScreen = ({ onClose}) => {
   const [thoughts, setThoughts] = useState([]);
   const [purpose, setPurpose] = useState("");
   const [keyLearning, setKeyLearning] = useState("");
@@ -31,6 +31,7 @@ const ThoughtsScreen = () => {
     fetchThoughts();
     fetchLectures();
   }, []);
+  
 
   const fetchThoughts = async () => {
     setLoading(true);
@@ -96,7 +97,7 @@ const ThoughtsScreen = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Post-Lecture Reflections</Text>
+        <Text style={styles.title}>Post Lecture Reflections</Text>
         <View style={styles.card}>
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Purpose of the lecture:</Text>
@@ -144,71 +145,82 @@ const ThoughtsScreen = () => {
                 />
               ))}
             </Picker>
-          </View>
-
-          <TouchableOpacity onPress={addThought} style={styles.button}>
-            <Text style={styles.buttonText}>Submit Reflection</Text>
-          </TouchableOpacity>
+          <View style={styles.buttonContainer}>
+    <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+      <Text style={styles.closeButtonText}>Close</Text>
+    </TouchableOpacity>
+    <TouchableOpacity onPress={addThought} style={styles.button}>
+      <Text style={styles.buttonText}>Submit Reflection</Text>
+    </TouchableOpacity>
+  </View>
         </View>
+  </View>
       </ScrollView>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  
   safeArea: {
     flex: 1,
-    backgroundColor: "#f8f9fa",
+    // backgroundColor: "#f8f9fa",
   },
   loaderContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f8f9fa", // A light grey background for the loading screen
+    // backgroundColor: "#f8f9fa", // A light grey background for the loading screen
   },
   container: {
     flexGrow: 1,
     padding: 20,
     alignItems: "center",
-    backgroundColor: "#f5f5f5", // A neutral off-white background
+    // backgroundColor: "#f5f5f5", // A neutral off-white background
   },
   title: {
-    fontSize: isLargeScreen ? 28 : 24,
     fontFamily: "Pantasia-Regular",
+    fontSize: isLargeScreen ? 28 : 24,
     fontWeight: "600",
-    color: "#333", // Dark grey for better readability
-    marginBottom: 30,
+    color: "#000", // Solid black for title
+    marginBottom: 20,
+    textAlign: 'center', // Center align for modal titles
   },
   card: {
     width: "100%",
     backgroundColor: "#fff",
     padding: 20,
-    borderRadius: 10,
+    borderRadius: 8, // Softened rounded corners
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowOpacity: 0.05, // Lower opacity for a softer shadow
+    shadowRadius: 10,
+    elevation: 2, // Reduced elevation
   },
   inputGroup: {
     width: "100%",
-    marginBottom: 20,
+    marginBottom: 15,
     backgroundColor: "#fff", // Ensures input group has a distinct background
     padding: 10,
     borderRadius: 10, // Soft rounded corners for a modern look
   },
   inputLabel: {
     fontSize: 16,
-    color: "#666", // Soft grey for text
+    color: "#000", // Soft grey for text
     marginBottom: 5,
   },
   input: {
-    backgroundColor: "#fff",
+    backgroundColor: '#f7f7f7', // Very light grey for input background
+    borderWidth: 0, // No borders
+    borderRadius: 8,
     padding: 15,
-    borderRadius: 10,
     fontSize: 16,
-    borderWidth: 1,
-    borderColor: "#ccc", // Light grey border for subtle distinction
+    color: '#333', // Dark text for contrast
+    shadowColor: 'rgba(0,0,0,0.1)', // Subtle shadow
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    shadowOpacity: 1,
+    elevation: 2, // Elevation for Android
   },
   picker: {
     backgroundColor: "#fff",
@@ -216,18 +228,53 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ccc",
   },
-  button: {
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center', // Center buttons horizontally
+    alignItems: 'center',
     marginTop: 20,
-    backgroundColor: "#000", // Bright blue for the primary action
-    padding: 15,
-    borderRadius: 10,
-    width: "100%",
-    alignItems: "center",
+  },
+  button: {
+    // Stylish and minimalist button
+    backgroundColor: '#000', // Vercel-like black button
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginHorizontal: 10,
+    flexGrow: 1, // Buttons take up the available space evenly
+    // Subtle shadow for depth
+    shadowColor: 'rgba(0,0,0,0.1)',
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    shadowOpacity: 1,
+    elevation: 2, // Elevation for Android
   },
   buttonText: {
-    color: "#fff", // White text for contrast on the button
-    fontSize: 18,
-    fontWeight: "600",
+    color: '#fff',
+    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: '500', // Not too bold, keeping it clean
+  },
+  closeButton: {
+    // Close button matches the submit but with a different color
+    backgroundColor: '#e0e0e0', // Light grey for contrast
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginHorizontal: 10,
+    flexGrow: 1,
+    // The rest of the style is similar to the submit button
+    shadowColor: 'rgba(0,0,0,0.1)',
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    shadowOpacity: 1,
+    elevation: 2,
+  },
+  closeButtonText: {
+    color: '#333',
+    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: '500',
   },
 });
 
