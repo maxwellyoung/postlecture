@@ -33,7 +33,7 @@ const ThoughtsListScreen = () => {
     setLoading(true);
     const thoughtsCollection = collection(db, "thoughts");
     const querySnapshot = await getDocs(
-      query(thoughtsCollection, orderBy("createdAt", "desc")),
+      query(thoughtsCollection, orderBy("createdAt", "desc"))
     );
 
     const fetchedThoughts = [];
@@ -95,12 +95,15 @@ const ThoughtsListScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    padding: isLargeScreen ? 30 : 20,
+    // padding: isLargeScreen ? 30 : 20,
+    borderRadius: 20,
     backgroundColor: "#f5f5f5",
+    height: "100vh",
   },
   loaderContainer: {
     flex: 1,
     justifyContent: "center",
+    backgroundColor: "#f5f5f5",
     alignItems: "center",
   },
 });

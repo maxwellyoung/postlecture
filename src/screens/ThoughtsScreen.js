@@ -37,6 +37,7 @@ const ThoughtsScreen = ({ onClose }) => {
   const [lectureTag, setLectureTag] = useState("");
   const [lectures, setLectures] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [inputValue, setInputValue] = useState("");
 
   const [isPurposeFocused, setPurposeFocused] = useState(false);
   const [isKeyLearningFocused, setKeyLearningFocused] = useState(false);
@@ -46,6 +47,15 @@ const ThoughtsScreen = ({ onClose }) => {
     fetchThoughts();
     fetchLectures();
   }, []);
+
+  const onAddSuccess = () => {
+    setPurpose("");
+    setKeyLearning("");
+    setPuzzles("");
+    setLectureTag("");
+    fetchThoughts();
+    onClose(); // Close the modal after adding the thought
+  };
 
   const renderInputAccessory = (isFocused, value) => {
     if (isFocused) {
@@ -153,6 +163,7 @@ const ThoughtsScreen = ({ onClose }) => {
 
   const handlePressSubmit = () => {
     addThought();
+    setInputValue("");
     onClose();
   };
 
@@ -299,21 +310,21 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     borderRadius: 8,
     padding: 15,
-    marginBottom: 15,
+    marginBottom: 5,
   },
   input: {
-    backgroundColor: "#f7f7f7", // Very light grey for input background
+    backgroundColor: "#e0e0e0", // Very light grey for input background
     borderWidth: 0, // No borders
     borderRadius: 8,
     padding: 15,
     // width: "100%",
     fontSize: 16,
     color: "#333", // Dark text for contrast
-    shadowColor: "rgba(0,0,0,0.1)", // Subtle shadow
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
+    shadowColor: "#333",
+
     shadowOpacity: 1,
-    elevation: 2, // Elevation for Android
+    shadowRadius: 2,
+    elevation: 3,
   },
   inputAccessory: {
     marginLeft: 10, // Space between input and accessory

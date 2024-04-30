@@ -6,15 +6,17 @@ import {
   StyleSheet,
   Pressable,
   Dimensions,
-  Modal
+  Modal,
 } from "react-native";
-import { BlurView } from 'expo-blur';
+import { BlurView } from "expo-blur";
 import ThoughtsListScreen from "./ThoughtsListScreen";
 import ThoughtsScreen from "./ThoughtsScreen";
 
 const HomeScreen = ({ navigation }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [screenWidth, setScreenWidth] = useState(Dimensions.get("window").width);
+  const [screenWidth, setScreenWidth] = useState(
+    Dimensions.get("window").width
+  );
 
   useEffect(() => {
     const onChange = (result) => {
@@ -36,17 +38,24 @@ const HomeScreen = ({ navigation }) => {
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <View style={styles.container}>
           <Text style={styles.title}>Post Lecture</Text>
-          <View style={[styles.menuContainer, isMobile ? styles.menuVertical : styles.menuHorizontal]}>
-            <Pressable style={styles.button} onPress={() => navigation.navigate("Schedule")}>
+          <View
+            style={[
+              styles.menuContainer,
+              isMobile ? styles.menuVertical : styles.menuHorizontal,
+            ]}
+          >
+            <Pressable
+              style={styles.button}
+              onPress={() => navigation.navigate("Schedule")}
+            >
               <Text style={styles.text}>View Schedule</Text>
             </Pressable>
             <Pressable style={styles.button} onPress={toggleModal}>
               <Text style={styles.text}>Log Thoughts</Text>
             </Pressable>
           </View>
-          
+
           <ThoughtsListScreen />
-        
         </View>
       </ScrollView>
       <Modal
@@ -66,42 +75,44 @@ const HomeScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   absoluteFill: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
   },
   modalContainer: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     padding: 20,
     borderRadius: 20,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.25,
     shadowRadius: 10,
     elevation: 10,
-    alignSelf: 'center',
-    marginTop: '10%',
-    marginBottom: '10%',
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignSelf: "center",
+    marginTop: "10%",
+    marginBottom: "10%",
+    alignItems: "center",
+    justifyContent: "center",
   },
   fullScreen: {
     flex: 1,
   },
   scrollViewContent: {
     flexGrow: 1,
+    height: "100vh", // Full viewport height
   },
   container: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#f5f5f5",
     padding: 20,
   },
   title: {
     fontSize: 28,
-    fontFamily: 'Pantasia-Regular',
+    fontFamily: "Pantasia-Regular",
     fontWeight: "600",
     marginBottom: 20,
   },
@@ -109,7 +120,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 8,
-    backgroundColor: '#000',
+    backgroundColor: "#000",
     marginHorizontal: 10,
     marginTop: 10,
   },
@@ -120,7 +131,8 @@ const styles = StyleSheet.create({
   menuContainer: {
     flexDirection: "row",
     justifyContent: "center",
-    width: '100%',
+    width: "100%",
+    marginBottom: 20,
   },
   menuVertical: {
     flexDirection: "column",
